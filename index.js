@@ -10,7 +10,6 @@ app.use(bodyParser.json());
 app.use('/users',usersRoutes);
 
 app.get('/',(req,res)=>{
-    console.log('test !');
     res.send('hello this is home page');
 })
 
