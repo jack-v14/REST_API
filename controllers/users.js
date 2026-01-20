@@ -72,6 +72,6 @@ export const updateUser = async (req, res) => {
       user
     });
   } catch (err) {
-    res.status(400).json({ error: 'Invalid ID' });
+    res.status(400).json({ error: 'Invalid ID' });5
   }
 };

@@ -17,5 +17,6 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+// mongoose.model('name used to access his schema ' , actual schema )
 
 export default mongoose.model('User', userSchema);
