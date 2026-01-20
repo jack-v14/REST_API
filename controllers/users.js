@@ -1,64 +1,77 @@
-import { v4 as uuidv4 } from 'uuid';
+import User from '../models/user.js';
 
-let users = [];
-export const getUsers = (req, res) => {
+// GET all users
+export const getUsers = async (req, res) => {
+  try {
+    const users = await User.find();
     res.json(users);
-}
-export const addUser = (req, res) => {
-    const user = req.body;
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
-    const newUser = { ...user, id: uuidv4() };
-    users.push(newUser);
+// ADD user
+export const addUser = async (req, res) => {
+  try {
+    console.log('POST /users HIT');
+    console.log('BODY:', req.body);
+
+    const newUser = new User(req.body);
+    await newUser.save();
 
     res.status(201).json(newUser);
-}
-export const getUser = (req, res) => {
-    const { id } = req.params;
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+};
 
-    const foundUser = users.find(user => user.id === id);
 
-    if (!foundUser) {
-        return res.status(404).json({ error: 'User not found' });
-    }
+// GET user by ID
+export const getUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
 
-    res.json(foundUser);
-}
-export const deleteuser = (req, res) => {
-    const { id } = req.params;
+    if (!user)
+      return res.status(404).json({ error: 'User not found' });
 
-    const initialLength = users.length;
-    users = users.filter(user => user.id !== id);
+    res.json(user);
+  } catch (err) {
+    res.status(400).json({ error: 'Invalid ID' });
+  }
+};
 
-    if (users.length === initialLength) {
-        return res.status(404).json({ error: 'User not found' });
-    }
+// DELETE user
+export const deleteuser = async (req, res) => {
+  try {
+    const user = await User.findByIdAndDelete(req.params.id);
+
+    if (!user)
+      return res.status(404).json({ error: 'User not found' });
 
     res.json({ message: 'User deleted successfully' });
-}
-export const updateUser = (req, res) => {
-    const { id } = req.params;
-    const { firstName, lastName, age } = req.body;
+  } catch (err) {
+    res.status(400).json({ error: 'Invalid ID' });
+  }
+};
 
-    const user = users.find(user => user.id === id);
+// PATCH user
+export const updateUser = async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
 
-    if (!user) {
-        return res.status(404).json({ error: 'User not found' });
-    }
+    if (!user)
+      return res.status(404).json({ error: 'User not found' });
 
-    if (firstName !== undefined) {
-        user.firstName = firstName;
-    }
-
-    if (lastName !== undefined) {
-        user.lastName = lastName;
-    }
-
-    if (age !== undefined) {
-        user.age = age;
-    }
-
-    res.status(200).json({
-        message: 'User updated successfully',
-        user
+    res.json({
+      message: 'User updated successfully',
+      user
     });
-}
+  } catch (err) {
+    res.status(400).json({ error: 'Invalid ID' });
+  }
+};
